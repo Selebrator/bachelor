@@ -51,7 +51,7 @@ public class Benchmark {
 		CommandLine cli = parser.parse(options, args);
 		String netName = cli.getOptionValue("net");
 
-		Path mccDir = Path.of("/home/lukas/mcc/reachability-2020");
+		Path mccDir = Path.of("");
 		MccTest mccTest = new MccTest(mccDir.resolve(netName), false);
 		String formulasIn = cli.getOptionValue("formulas");
 		String solverName = cli.getOptionValue("solver");
