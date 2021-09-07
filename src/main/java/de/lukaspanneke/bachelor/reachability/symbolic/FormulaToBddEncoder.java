@@ -4,7 +4,7 @@ import com.github.javabdd.BDD;
 import com.github.javabdd.BDDDomain;
 import com.github.javabdd.BDDFactory;
 import de.lukaspanneke.bachelor.reachability.logic.ComparisonOperator;
-import de.lukaspanneke.bachelor.reachability.logic.apt.LinearCombination;
+import de.lukaspanneke.bachelor.reachability.logic.generic.LinearCombination;
 import de.lukaspanneke.bachelor.reachability.logic.generic.formula.ComparisonFormula;
 import de.lukaspanneke.bachelor.reachability.logic.generic.formula.CompositionFormula;
 import de.lukaspanneke.bachelor.reachability.logic.generic.formula.NegatedFormula;
@@ -79,7 +79,7 @@ public class FormulaToBddEncoder {
 			val++;
 		}
 
-		BDD ret = _linear_combination_less_then_or_equal_val(varToCoef, val);
+		BDD ret = _linear_combination_less_then_val(varToCoef, val);
 
 		if (op == GREATER_THEN || op == GREATER_EQUALS) {
 			/* negate the BDD to turn the currently encoded var <= val into var > val */
@@ -90,7 +90,7 @@ public class FormulaToBddEncoder {
 		return ret;
 	}
 
-	private static BDD _linear_combination_less_then_or_equal_val(Map<BDDDomain, Integer> varToCoef, int val) throws InterruptedException {
+	private static BDD _linear_combination_less_then_val(Map<BDDDomain, Integer> varToCoef, int val) throws InterruptedException {
 		Map<Integer, BDDDomain> idxToVar = new HashMap<>();
 		int idx = 1;
 		for (BDDDomain var : varToCoef.keySet()) {
@@ -103,7 +103,7 @@ public class FormulaToBddEncoder {
 				.intValueExact();
 		int b = nextPowerOfTwo(maxSize);
 
-		return _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, -val, varToCoef.size(), 1, 0, b);
+		return _linear_combination_less_then_val_recursion(idxToVar, varToCoef, -val, varToCoef.size(), 1, 0, b);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class FormulaToBddEncoder {
 	 * expression.
 	 * @return The BDD which encodes the specified linear inequality expression.
 	 */
-	private static BDD _linear_combination_less_then_or_equal_val_recursion(Map<Integer, BDDDomain> idxToVar,
+	private static BDD _linear_combination_less_then_val_recursion(Map<Integer, BDDDomain> idxToVar,
 			Map<BDDDomain, Integer> varToCoef, long c, int v, int i,
 			int j, int b) throws InterruptedException {
 		if (Thread.interrupted()) {
@@ -135,13 +135,13 @@ public class FormulaToBddEncoder {
 		 * the current variable has no bit in this layer (its length is shorter), but
 		 * we can proceed to the next variable in this layer
 		 */
-			return _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, c, v, i + 1, j, b);
+			return _linear_combination_less_then_val_recursion(idxToVar, varToCoef, c, v, i + 1, j, b);
 		}
 		if (j >= varIBits.length && j < b - 1) { //&& (i == v) /*proceed to the beginning of the next layer*/
 			if (c % 2 == 0) {
-				return _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, c / 2, v, 1, j + 1, b);
+				return _linear_combination_less_then_val_recursion(idxToVar, varToCoef, c / 2, v, 1, j + 1, b);
 			}
-			return _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, (c - 1) / 2, v, 1, j + 1, b);
+			return _linear_combination_less_then_val_recursion(idxToVar, varToCoef, (c - 1) / 2, v, 1, j + 1, b);
 		}
 		if (j >= varIBits.length) { /*
 		 * this is the last variable in the last layer, but the current variable has no bit in
@@ -163,11 +163,11 @@ public class FormulaToBddEncoder {
 			lo = (c < 0) ? factory.one() : factory.zero();
 			hi = (c + curCoef < 0) ? factory.one() : factory.zero();
 		} else if (i == v) { /* last variable in this layer --> proceed to the beginning of the next layer */
-			lo = _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, c % 2 == 0 ? c / 2 : (c - 1) / 2, v, 1, j + 1, b);
-			hi = _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, (c + curCoef) % 2 == 0 ? (c + curCoef) / 2 : (c + curCoef - 1) / 2, v, 1, j + 1, b);
+			lo = _linear_combination_less_then_val_recursion(idxToVar, varToCoef, c % 2 == 0 ? c / 2 : (c - 1) / 2, v, 1, j + 1, b);
+			hi = _linear_combination_less_then_val_recursion(idxToVar, varToCoef, (c + curCoef) % 2 == 0 ? (c + curCoef) / 2 : (c + curCoef - 1) / 2, v, 1, j + 1, b);
 		} else {
-			lo = _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, c, v, i + 1, j, b);
-			hi = _linear_combination_less_then_or_equal_val_recursion(idxToVar, varToCoef, c + curCoef, v, i + 1, j, b);
+			lo = _linear_combination_less_then_val_recursion(idxToVar, varToCoef, c, v, i + 1, j, b);
+			hi = _linear_combination_less_then_val_recursion(idxToVar, varToCoef, c + curCoef, v, i + 1, j, b);
 		}
 
 		BDD result = curBit.ite(hi, lo);
