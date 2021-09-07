@@ -1,4 +1,4 @@
-package de.lukaspanneke.bachelor.reachability.logic.apt;
+package de.lukaspanneke.bachelor.reachability.logic.generic;
 
 import de.lukaspanneke.bachelor.reachability.logic.CalculationOperator;
 import de.lukaspanneke.bachelor.reachability.logic.ComparisonOperator;
